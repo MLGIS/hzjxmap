@@ -69,9 +69,30 @@ function init(Cesium,Zlib){
 		    var boundingSphere = tileset.boundingSphere;
 		    viewer.camera.viewBoundingSphere(boundingSphere, new Cesium.HeadingPitchRange(0.0, -0.5, boundingSphere.radius));
 		    viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+		    handlerDis.activate()
 		}).otherwise(function(error) {
 		    throw(error);
 		});
+		 handlerDis = new Cesium.MeasureHandler(viewer,Cesium.MeasureMode.Distance,0);
+        //注册测距功能事件
+        handlerDis.measureEvt.addEventListener(function(result){
+            var distance = result.distance > 1000 ? (result.distance/1000) + 'km' : result.distance + 'm';
+            handlerDis.disLabel.text = '距离:' + distance;
+            handlerDis.disLabel.outlineColor = new Cesium.Color(0, 0, 1);
+            handlerDis.disLabel.font='100 20px sans-serif';
+            handlerDis.disLabel.outlineWidth=5;
+        });
+        handlerDis.activeEvt.addEventListener(function(isActive){
+            if(isActive == true){
+                viewer.enableCursorStyle = false;
+                viewer._element.style.cursor = '';
+                $('body').removeClass('measureCur').addClass('measureCur');
+            }
+            else{
+                viewer.enableCursorStyle = true;
+                $('body').removeClass('measureCur');
+            }
+        });
 
 		viewer.animation.container.style.visibility='hidden';
         viewer.timeline.container.style.visibility='hidden';
